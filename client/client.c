@@ -71,6 +71,7 @@ int main(int argc,char *argv[]){
         fprintf(stderr,"socket connect fail!\n");
         exit(1);
     }
+    
     LOGI("client connect server!\n");
     pthreadarg = (int *)malloc(sizeof(int));
     *pthreadarg = sockfd;

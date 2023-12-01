@@ -81,6 +81,7 @@ int main(int argc,char *argv[]){
         fprintf(stderr,"socket bind fail!\n");
         exit(1);
     }
+    
     LOGI("bind Successfully!\n");
     if( (listen(sockfd,10)) == -1){
         fprintf(stderr,"socket listen fail!\n");

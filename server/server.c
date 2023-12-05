@@ -10,39 +10,67 @@
 #include "log.h"
 
 
-#define RECVBUFFERSIZE 2048
+#include "opera_server.h"
+
+
 
 void *rec_func(void *arg){
-    char buffer[RECVBUFFERSIZE];
-    int nbytes;
+    int len;
+    struct protocol msg;
+
+    int index = -1;
     int fd = *(int *)arg;
     LOGI("fd = %d\n",fd);
     free(arg);
     while(1){
-        nbytes = recv(fd,buffer,RECVBUFFERSIZE,0);
-        if(nbytes == -1){
-            fprintf(stderr,"recv fail!\n");
+        // read cmd
+        len = read(fd,&msg,sizeof(msg));
+        printf("%s:%d:index = %d\n",__func__,__LINE__,index);
+        LOGI("len = %d\n",len);
+        if(len == 0){
+            // recv fail
+            fprintf(stderr,"client disconnect!\n");
+            printf("%s:%d:index = %d\n",__func__,__LINE__,index);
+            opera_offline(index);
             close(fd);
             break;
-        }else if(nbytes == 0){
+        }else if(len < 0){
+            // recv fail
+            fprintf(stderr,"read data fail!\n");
+            opera_offline(index);
             close(fd);
-            printf("client disconnect!\n");
             break;
         }
-        buffer[nbytes] = '\0';
-        LOGI("nbytes - %d\n",nbytes);
-        LOGI("recv data = %s\n",buffer);
-
-        if(send(fd,buffer,sizeof(buffer),0) == -1){
-            fprintf(stderr,"server data to client fail!\n");
-            exit(1);
+        switch (msg.cmd)
+        {
+        case LOGIN:
+            opera_login(fd,&index,&msg);
+            break;
+        case BROADCAST:
+            opera_login(fd,&index,&msg);
+            break;
+        case PRIVATE:
+            opera_login(fd,&index,&msg);
+            break;
+        case REGISTER:
+            opera_register(fd,&index,&msg);
+            break;
+        case ONLINEUSER:
+            opera_login(fd,&index,&msg);
+            break;
+        case LOGOUT:
+            opera_login(fd,&index,&msg);
+            break;
+        default:
+            break;
         }
     }
+    printf("exit the recv pthread!\n");
+    pthread_exit(NULL);
 
 }
 
 int main(int argc,char *argv[]){
-    int portnumber;
     int clientlen;
     int sockfd,clientfd;
     struct sockaddr_in server_addr,client_addr;
@@ -50,27 +78,28 @@ int main(int argc,char *argv[]){
     pthread_t thread;
 
 
-    if(argc != 2){
+    if(argc != 1){
         fprintf(stderr,"input invalid!\n");
         exit(1);
     }
 
 
-    if( (portnumber = atoi(argv[1])) < 0){
-        fprintf(stderr,"change portnumber faild\n");
-        exit(1);
-    }
+    // if( (portnumber = atoi(argv[1])) < 0){
+    //     fprintf(stderr,"change portnumber faild\n");
+    //     exit(1);
+    // }
 
-    LOGI("portnumber = %d\n",portnumber);
 
     if( (sockfd = socket(AF_INET,SOCK_STREAM,0)) == -1){
         fprintf(stderr,"socket create failed!\n");
         exit(1);
-    }    
+    }  
 
     LOGI("socketfd = %d\n",sockfd);
     bzero(&server_addr,sizeof(struct sockaddr_in));
-    server_addr.sin_port = htons(portnumber);
+
+    // server_addr.sin_port = htons(portnumber);
+    server_addr.sin_port = htons(SERVERPORT);
     LOGI("port : %u\n",server_addr.sin_port);
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -90,6 +119,15 @@ int main(int argc,char *argv[]){
     LOGI("start listen socket!\n");
 
     clientlen = sizeof(client_addr);
+
+    /*
+        init save user data array
+    */
+    for(int i = 0;i < MAXUSERNUM; i++){
+        online[i].fd = -1;
+        online[i].flag = -1;
+    }
+
     while(1){
         if((clientfd = accept(sockfd,(struct sockaddr *)&client_addr,&clientlen)) == -1){
             fprintf(stderr,"accept socket fail!\n");

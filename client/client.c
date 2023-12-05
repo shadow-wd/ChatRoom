@@ -7,10 +7,16 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+
 #include "log.h"
+#include "opera_client.h"
 
 
 #define BUFFERSIZE 1024
+
+
+login_flag = -1;
+
 
 void *rec_func(void *arg){
     char buffer[BUFFERSIZE];
@@ -18,7 +24,10 @@ void *rec_func(void *arg){
     int fd = *(int *)arg;
     free(arg);
     while(1){
-        nbytes = recv(fd,buffer,BUFFERSIZE,0);
+        if(login_flag != 1){
+            continue;
+        }
+        nbytes = read(fd,buffer,BUFFERSIZE);
         if(nbytes == -1){
             close(fd);
             break;
@@ -34,25 +43,23 @@ void *rec_func(void *arg){
 }
 
 int main(int argc,char *argv[]){
-    int portnumber;
     int sockfd;
     struct sockaddr_in server_addr;
     int *pthreadarg = NULL;
     pthread_t thread;
-    char buffer[BUFFERSIZE];
+    int choose;
+    int max_sel,min_sel;
 
-    if(argc != 3){
+    if(argc != 2){
         fprintf(stderr,"input invalid!\n");
         exit(1);
     }
 
 
-    if( (portnumber = atoi(argv[2])) < 0){
-        fprintf(stderr,"change portnumber faild\n");
-        exit(1);
-    }
-
-    LOGI("portnumber = %d\n",portnumber);
+    // if( (portnumber = atoi(argv[2])) < 0){
+    //     fprintf(stderr,"change portnumber faild\n");
+    //     exit(1);
+    // }
 
     if( (sockfd = socket(AF_INET,SOCK_STREAM,0)) == -1){
         fprintf(stderr,"socket create failed!\n");
@@ -61,7 +68,7 @@ int main(int argc,char *argv[]){
 
 
     bzero(&server_addr,sizeof(struct sockaddr_in));
-    server_addr.sin_port = htons(portnumber);
+    server_addr.sin_port = htons(SERVERPORT);
     LOGI("port : %u\n",server_addr.sin_port);
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = inet_addr(argv[1]);
@@ -81,13 +88,54 @@ int main(int argc,char *argv[]){
         fprintf(stderr,"pthread create fail!\n");
         exit(1);
     }
+    system("clear");
     while(1){
+        if(login_flag == -1){
+            printf("1. login\n");
+            printf("2. register\n");
+        }else{
+            printf("3. private\n");
+            printf("4. public chat\n");
+            printf("5. online list\n");
+            printf("6. login out\n");
+        }
+
         printf("input send mesggage:\n");
-        scanf("%s",buffer);
-        LOGI("send data = %s\n",buffer);
-        if((send(sockfd,buffer,strlen(buffer),0)) == -1){
-            fprintf(stderr,"send data to server fail!\n");
-            exit(1);
+        scanf("%d",&choose);
+        if(login_flag == 1){
+            max_sel = 6;
+            min_sel = 3;
+        }else if(login_flag == -1){
+            max_sel = 2;
+            min_sel = 1;
+        }
+        // LOGI("max = %d, choose = %d, min = %d\n",max_sel,choose,min_sel);
+        if(choose < min_sel || choose > max_sel){
+            fprintf(stderr,"input invaild!\n");
+            continue;
+        }
+        switch (choose)
+        {
+        case 1:
+            opera_login(sockfd);
+            break;
+        case 2:
+            opera_register(sockfd);
+            break;
+        case 3:
+            
+            break;
+        case 4:
+            
+            break;
+        case 5:
+             
+            break;
+        case 6:
+            opera_close(sockfd);
+            break;
+        default:
+            break;
         }
 
     }

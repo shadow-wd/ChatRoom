@@ -129,7 +129,7 @@ int main(int argc,char *argv[]){
             
             break;
         case 5:
-             
+             opera_show_online(sockfd);
             break;
         case 6:
             opera_close(sockfd);

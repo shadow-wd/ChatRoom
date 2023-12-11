@@ -1,0 +1,66 @@
+    int choice;
+    char name[50];
+    int fd;
+    char passwd[50];
+    int flag;
+
+    if(db_init(&db) == -1){
+        printf("database fail!\n");
+        return;
+    }
+
+     while(1){
+        printf("Enter your choice (1, 2, 3, 4, or 5): \n");
+        printf(" 1. register to table. \n 2. online or offline \n 3. show online user . \n 4. register or no. \n 5. query online or offline\n 6. quit\n");
+        printf("please select : "); 
+        // Ensure the input is an integer
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid input. Please enter an integer.\n");
+            // return 1; // Exit with an error code
+        }
+        switch(choice){
+            case 1:
+                printf("Enter the name of the data you want to add:   ");
+                scanf("%s", name);
+                printf("Enter the fd of the data you want to add:   ");
+                scanf("%d", &fd);
+                printf("Enter the passwd of the data you want to add:   ");
+                scanf("%s", passwd);
+                printf("Enter the flag of the data you want to add:   ");
+                scanf("%d", &flag);
+                db_register(&db,name ,passwd,fd,flag);
+                break;
+            case 2:
+                printf("Enter the name of the data you want to add:   ");
+                scanf("%s", name);
+                printf("Enter the fd of the data you want to add:   ");
+                scanf("%d", &fd);
+                db_line(&db,name,fd);
+                break;
+            case 3:
+                db_show(&db);
+                break;
+            case 4:
+                printf("Enter the name of the data you want to add:   ");
+                scanf("%s", name);
+                if(db_isregister(&db,name)){
+                    printf("'%s' is register.\n",name);
+                    break;
+                }
+                printf("'%s' is no register.\n",name);
+                break;
+            case 5:    
+                printf("Enter the name of the data you want to add:   ");
+                scanf("%s", name);
+                if(db_isonline(&db,name) == 1){
+                    printf("'%s' is online.\n",name);
+                    break;
+                }
+                printf("'%s' is offline.\n",name);
+                break;
+            case 6:
+                db_close(&db);
+                exit(0);
+                break;
+        }
+    }

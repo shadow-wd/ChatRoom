@@ -8,62 +8,56 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include "log.h"
-
-
+#include "../database/opera_db.h"
 #include "opera_server.h"
-
-
 
 void *rec_func(void *arg){
     int len;
     struct protocol msg;
-
-    int index = -1;
     int fd = *(int *)arg;
     LOGI("fd = %d\n",fd);
     free(arg);
     while(1){
         // read cmd
         len = read(fd,&msg,sizeof(msg));
-        printf("%s:%d:index = %d\n",__func__,__LINE__,index);
         LOGI("len = %d\n",len);
         if(len == 0){
             // recv fail
             fprintf(stderr,"client disconnect!\n");
-            printf("%s:%d:index = %d\n",__func__,__LINE__,index);
-            opera_offline(index);
+
+            opera_logout(fd);
             close(fd);
             break;
         }else if(len < 0){
             // recv fail
             fprintf(stderr,"read data fail!\n");
-            opera_offline(index);
+            opera_offline(msg.name);
             close(fd);
             break;
         }
+        // printf("msg->name%s\n",msg.name);
         switch (msg.cmd)
         {
         case LOGIN:
-            opera_login(fd,&index,&msg);
+            opera_login(fd,&msg);
             break;
         case BROADCAST:
-            opera_login(fd,&index,&msg);
             break;
         case PRIVATE:
-            opera_login(fd,&index,&msg);
             break;
         case REGISTER:
-            opera_register(fd,&index,&msg);
+            opera_register(fd,&msg);
             break;
         case ONLINEUSER:
-            opera_login(fd,&index,&msg);
+            opera_show_online(fd);
             break;
         case LOGOUT:
-            opera_login(fd,&index,&msg);
+            opera_logout(fd);
             break;
         default:
             break;
         }
+        // printf("msg->111name%s\n",msg.name);
     }
     printf("exit the recv pthread!\n");
     pthread_exit(NULL);
@@ -78,16 +72,22 @@ int main(int argc,char *argv[]){
     pthread_t thread;
 
 
+    int choice;
+    char name[50];
+    int fd;
+    char passwd[50];
+    int flag;
+
+    if(db_init(&db) == -1){
+        printf("database fail!\n");
+        return;
+    }
+
+
     if(argc != 1){
         fprintf(stderr,"input invalid!\n");
         exit(1);
     }
-
-
-    // if( (portnumber = atoi(argv[1])) < 0){
-    //     fprintf(stderr,"change portnumber faild\n");
-    //     exit(1);
-    // }
 
 
     if( (sockfd = socket(AF_INET,SOCK_STREAM,0)) == -1){
@@ -120,13 +120,6 @@ int main(int argc,char *argv[]){
 
     clientlen = sizeof(client_addr);
 
-    /*
-        init save user data array
-    */
-    for(int i = 0;i < MAXUSERNUM; i++){
-        online[i].fd = -1;
-        online[i].flag = -1;
-    }
 
     while(1){
         if((clientfd = accept(sockfd,(struct sockaddr *)&client_addr,&clientlen)) == -1){

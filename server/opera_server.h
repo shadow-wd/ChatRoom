@@ -3,21 +3,17 @@
 
 #include "log.h"
 #include "chatroom.h"
+#include "../database/opera_db.h"
 
 
-/*
-    define online user array 
-    max user number 32
-*/
-struct ONLINE online[MAXUSERNUM];
+sqlite3 *db;
 
+int  opera_register(int sockfd,struct protocol*msg);
+void opera_login(int sockfd,struct protocol*msg);
+void opera_offline(char *name);
+void opera_show_online(int sockfd);
 
-
-int  opera_register(int sockfd,int *index,struct protocol*msg);
-void opera_login(int sockfd,int *index,struct protocol*msg);
-void opera_offline(int index);
-
-
+void opera_logout(int sockfd);
 
 
 #endif

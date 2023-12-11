@@ -71,8 +71,57 @@ int opera_login(int sockfd){
 
 
 
-void opera_close(int fd){
-    close(fd);
-    login_flag = -1;
+
+int opera_show_online(int sockfd){
+    int ret;
+    struct protocol msg,msg_back;
+    UserData userdata;
+    userdata.userCount = 0;
+
+    msg.cmd = ONLINEUSER; 
+    
+
+    if((write(sockfd,&msg,sizeof(msg))) == -1){
+        fprintf(stderr,"online show fail!\n");
+        close(sockfd);
+        return;
+    }
+    while (1) {
+        // 读取传输的数据
+        ssize_t bytesRead = read(sockfd, &msg_back, sizeof(msg_back));
+        strcpy(userdata.names[userdata.userCount], msg_back.name);
+        userdata.userCount++;
+        if (msg_back.cmd == ONLINEUSER_OVER) {
+            break;
+        }
+
+    }
+    // printf("usercount =%d\n",userdata.userCount);
+    for (int i = 0; i < userdata.userCount; i++) {
+        printf("User: %s\n", userdata.names[i]);
+    }
+    return 0;
+}
+
+
+
+void opera_close(int sockfd){
+        int ret;
+    struct protocol msg,msg_back;
+
+    msg.cmd = LOGOUT; 
+
+    if((write(sockfd,&msg,sizeof(msg))) == -1){
+        fprintf(stderr,"online show fail!\n");
+        close(sockfd);
+        return;
+    }
+    if((read(sockfd,&msg_back,sizeof(msg_back))) == -1){
+        fprintf(stderr,"online show fail!\n");
+        close(sockfd);
+        return;
+    }
+    close(sockfd);
+    return 0;
 
 }

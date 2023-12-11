@@ -12,12 +12,29 @@ BIN_DIR = ./bin
 # Default target to compile all
 all: server client
 
+# Specify the directories where Makefile should look for files
+VPATH = database:server:client
+
+# Define source files for server (without paths)
+SERVER_SRCS =    opera_server.c \
+				 opera_server.h \
+				 server.c \
+				 opera_db.h \
+				 opera_db.c
+
+# Define source files for client (without paths)
+CLIENT_SRCS = 	client.c \
+				opera_client.c \
+				opera_client.h
+
+
+
 # Compile the server program
-server: server/opera_server.c server/opera_server.h server/server.c
-	$(CC) $(CFLAGS) $^ -o $(BIN_DIR)/$@ $(LDFLAGS)
+server: $(SERVER_SRCS)
+	$(CC) $(CFLAGS) $^ -o $(BIN_DIR)/$@ $(LDFLAGS)  -lsqlite3
 
 # Compile the client program
-client: client/client.c client/opera_client.c client/opera_client.h
+client: $(CLIENT_SRCS)
 	$(CC) $(CFLAGS) $^ -o $(BIN_DIR)/$@ $(LDFLAGS)
 
 # Clean up generated binary files

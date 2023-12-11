@@ -18,23 +18,10 @@
 
 
 //  max ueser number
-#define MAXUSERNUM 32
+#define MAXUSERNUM 10
 
-
-/*
-    online user struct
-    fd      -1 or 1   online flag   -1 :user offline  1:user online
-    flag    register or not     -1 :no register     1: user register
-    name 
-    passwd
-*/
-struct ONLINE{
-    int fd;
-    int flag;
-    char name[32];
-    char passwd[32];
-};
-
+// max user name length
+#define MAXUSERLEN 10
 
 /* 
     cmd 
@@ -48,10 +35,17 @@ struct protocol{
 };
 
 
+typedef struct {
+    int userCount;
+    char names[MAXUSERNUM][MAXUSERLEN];
+} UserData;
+
 /*
     protocol.status
     NAME_PWD_NMATCH 没有匹配的用户
     USER_LOGED      用户已登录
+    ONLINEUSER_OK      show online user
+    ONLINEUSER_OVER    online user translant over
 */
 #define OP_OK            0X80000000
 #define ONLINEUSER_OK    0X80000001

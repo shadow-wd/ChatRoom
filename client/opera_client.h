@@ -10,8 +10,8 @@
 extern int login_flag;
 
 
-void opera_close(int fd);
+void opera_close(int sockfd);
 int opera_login(int sockfd);
 int opera_register(int sockfd);
-
+int opera_show_online(int sockfd);
 #endif

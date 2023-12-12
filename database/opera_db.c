@@ -7,6 +7,33 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 }
 
 
+static int callback_findfd(void *NotUsed, int argc, char **argv, char **azColName){
+
+    int *fdResult = (int *)NotUsed;
+
+    *fdResult = atoi(argv[0]);
+
+    return 0; 
+}
+
+
+static int callback_findname(void *NotUsed, int argc, char **argv, char **azColName){
+
+     if (argc == 1 && argv[0] != NULL) {
+        char **name = (char **)NotUsed;
+        
+        // 将 argv[0] 复制到 *name，确保不越界
+        strncpy(*name, argv[0], 100 - 1);
+        (*name)[100 - 1] = '\0';  // 添加结束符
+        
+        return 0;  // 返回 0 表示继续处理下一行
+    }
+
+    return 0;
+}
+
+
+
 static int callback_login(void *NotUsed, int argc, char **argv, char **azColName){
     if (argc == 1 && argv[0] != NULL) {
         char **ispasswd = (char **)NotUsed;
@@ -15,7 +42,6 @@ static int callback_login(void *NotUsed, int argc, char **argv, char **azColName
 
         return 0;  // 返回 0 表示继续处理下一行
     }
-    printf("111\n");
     return 0;
 }
 
@@ -154,6 +180,53 @@ int db_delete(sqlite3 **db ){
         fprintf(stdout,"SQL delete Successfully!\n");
     }
 
+    return 0;
+}
+
+
+/*
+    find a user by name
+    return -1 fail       postive intergtive fd
+*/
+int db_finduserfd(sqlite3 **db,char *name){
+    char sql[100];
+    char *errmsg= NULL;
+    int fd =-1;
+
+    sprintf(sql,"SELECT FD FROM USER where NAME='%s';", name);
+
+    LOGI("cmd:%s\n",sql);
+    if( sqlite3_exec(*db,sql,callback_findfd,&fd,errmsg) != SQLITE_OK){
+        fprintf(stderr, "find user by name fail %s\n", errmsg);
+        sqlite3_free(errmsg);
+        return -1;
+    }else{
+        fprintf(stdout,"SQL update Successfully!\n");
+    }
+    return fd;
+}
+
+
+
+/*
+    find a user by fd
+    return -1 fail 
+*/
+int db_findusername(sqlite3 **db,int fd,char *name){
+    char sql[100];
+    char *errmsg= NULL;
+
+    sqlite3_snprintf(sizeof(sql), sql, "SELECT NAME FROM USER WHERE FD=%d;", fd);
+
+    LOGI("cmd:%s\n",sql);
+    if( sqlite3_exec(*db,sql,callback_findname,&name,errmsg) != SQLITE_OK){
+        fprintf(stderr, "find user by name fail %s\n", errmsg);
+        sqlite3_free(errmsg);
+        return -1;
+    }else{
+        fprintf(stdout,"find user name by fd Successfully!\n");
+    }
+    printf("name sfafdafda d= %s\n",name);
     return 0;
 }
 

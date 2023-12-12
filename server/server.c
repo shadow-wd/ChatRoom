@@ -42,8 +42,10 @@ void *rec_func(void *arg){
             opera_login(fd,&msg);
             break;
         case BROADCAST:
+            opera_broadcast(fd,&msg);
             break;
         case PRIVATE:
+            opera_private(fd,&msg);
             break;
         case REGISTER:
             opera_register(fd,&msg);

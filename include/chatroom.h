@@ -26,6 +26,8 @@
 /* 
     cmd 
     status    communication status
+    name     register and login  myself name
+             private    target name
 */
 struct protocol{
     int cmd;

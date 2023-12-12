@@ -13,6 +13,11 @@ void opera_login(int sockfd,struct protocol*msg);
 void opera_offline(char *name);
 void opera_show_online(int sockfd);
 
+int opera_private(int fd,struct protocol *msg);
+
+int opera_broadcast(int fd,struct protocol *msg);
+
+
 void opera_logout(int sockfd);
 
 

@@ -52,6 +52,13 @@ int db_isonline(sqlite3 **db,char *name);
 int db_isregister(sqlite3 **db,char *name);
 
 
+int db_finduserfd(sqlite3 **db,char *name);
+
+
+
+int db_findusername(sqlite3 **db,int fd,char *name);
+
+
 /*
     show online user
 */

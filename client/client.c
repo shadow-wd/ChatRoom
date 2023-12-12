@@ -21,13 +21,14 @@ login_flag = -1;
 void *rec_func(void *arg){
     char buffer[BUFFERSIZE];
     int nbytes;
+    struct protocol msg;
     int fd = *(int *)arg;
     free(arg);
     while(1){
         if(login_flag != 1){
             continue;
         }
-        nbytes = read(fd,buffer,BUFFERSIZE);
+        nbytes = read(fd,&msg,sizeof(msg));;
         if(nbytes == -1){
             close(fd);
             break;
@@ -36,8 +37,7 @@ void *rec_func(void *arg){
             printf("server disconnect!\n");
             break;
         }
-        buffer[nbytes] = '\0';
-        printf("recv server data = %s\n",buffer);
+        printf("Message#%s\n",msg.data);
     }
 
 }
@@ -101,7 +101,9 @@ int main(int argc,char *argv[]){
         }
 
         printf("input send mesggage:\n");
-        scanf("%d",&choose);
+        if(scanf("%d",&choose) != 1){
+            while (getchar() != '\n');
+        }
         if(login_flag == 1){
             max_sel = 6;
             min_sel = 3;
@@ -123,10 +125,10 @@ int main(int argc,char *argv[]){
             opera_register(sockfd);
             break;
         case 3:
-            
+            opera_private(sockfd);
             break;
         case 4:
-            
+            opera_broadcast(sockfd);
             break;
         case 5:
              opera_show_online(sockfd);

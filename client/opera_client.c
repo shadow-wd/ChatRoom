@@ -105,6 +105,51 @@ int opera_show_online(int sockfd){
 
 
 
+int opera_private(int sockfd){
+    int ret;
+    struct protocol msg,msg_back;
+
+    msg.cmd = PRIVATE; 
+    printf("input send to name:\n"); 
+    scanf("%s",msg.name);
+    printf("input message:\n"); 
+    scanf("%s",msg.data);
+
+    if((write(sockfd,&msg,sizeof(msg))) == -1){
+        fprintf(stderr,"send data fail!\n");
+        close(sockfd);
+        return;
+    }
+
+    
+    // if((read(sockfd,&msg_back,sizeof(msg_back))) == -1){
+    //     fprintf(stderr,"read data fail!\n");
+    //     close(sockfd);
+    //     return;
+    // }
+
+
+}
+
+int opera_broadcast(int sockfd){
+    int ret;
+    struct protocol msg,msg_back;
+
+    msg.cmd = BROADCAST; 
+    printf("input message:\n"); 
+    scanf("%s",msg.data);
+
+    if((write(sockfd,&msg,sizeof(msg))) == -1){
+        fprintf(stderr,"send data fail!\n");
+        close(sockfd);
+        return;
+    }
+
+
+}
+
+
+
 void opera_close(int sockfd){
         int ret;
     struct protocol msg,msg_back;

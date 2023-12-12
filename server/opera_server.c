@@ -89,6 +89,67 @@ void opera_show_online(int sockfd){
 
 
 /*
+    fd sender 
+    msg->name  receiver
+    user private chat
+*/
+int opera_private(int fd,struct protocol *msg){
+    struct protocol msg_back;
+    int sockfd;
+    char name[100];
+    // find reciever fd
+    sockfd = db_finduserfd(&db,msg->name);
+
+    // find sender name
+    if(db_findusername(&db,fd,name) != 0){
+        return -1;
+    }
+    printf("name sfafdafda sfdfddd= %s\n",name);
+    if(!(sockfd>0)){
+        return -1;
+    }
+    printf("name sfafdafda ddd= %s\n",name);
+    msg_back.cmd = PRIVATE;
+
+    snprintf(msg_back.data, sizeof(msg_back.data), "%s %s %s:%s", name,"send to",msg->name,msg->data);
+    write(sockfd,&msg_back,sizeof(msg_back));
+    return 0;
+}
+
+
+
+int opera_broadcast(int fd,struct protocol *msg){
+    struct protocol msg_back;
+    UserData userdata;
+    userdata.userCount = 0;
+    char name[100];
+    int sockfd = -1;
+
+
+    msg_back.cmd = BROADCAST; 
+    // find sender name
+    if(db_findusername(&db,fd,name) != 0){
+        return -1;
+    }
+
+
+    // find all online user fd and name
+    if(db_show(&db,&userdata) != 0){
+        return;
+    }
+    LOGI("usercount = %d\n",userdata.userCount);
+
+    // strcpy(msg_back.data, msg->data);
+    snprintf(msg_back.data, sizeof(msg_back.data), "%s say: %s", name,msg->data);
+    for(int i = 0;i < userdata.userCount - 1;i++){
+        strcpy(msg_back.name, userdata.names[i]);
+        sockfd = db_finduserfd(&db,msg_back.name);
+        write(sockfd,&msg_back,sizeof(msg_back));
+    }
+    return 0;
+}
+  
+/*
      logout
 */
 void opera_logout(int sockfd){

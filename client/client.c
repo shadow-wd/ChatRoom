@@ -147,6 +147,7 @@ int main(int argc,char *argv[]){
             break;
         case 6:
             opera_close(sockfd);
+            return 0;
             break;
         default:
             break;

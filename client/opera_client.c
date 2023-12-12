@@ -158,16 +158,17 @@ void opera_close(int sockfd){
     msg.cmd = LOGOUT; 
 
     if((write(sockfd,&msg,sizeof(msg))) == -1){
-        fprintf(stderr,"online show fail!\n");
+        fprintf(stderr,"exit client fail!\n");
         close(sockfd);
         return;
     }
     if((read(sockfd,&msg_back,sizeof(msg_back))) == -1){
-        fprintf(stderr,"online show fail!\n");
+        fprintf(stderr,"recv messages fail!\n");
         close(sockfd);
         return;
     }
     close(sockfd);
+    LOGI("exit client Successfully!\n");
     return 0;
 
 }

@@ -86,20 +86,21 @@ int opera_show_online(int sockfd){
         close(sockfd);
         return;
     }
-    while (1) {
-        // 读取传输的数据
-        ssize_t bytesRead = read(sockfd, &msg_back, sizeof(msg_back));
-        strcpy(userdata.names[userdata.userCount], msg_back.name);
-        userdata.userCount++;
-        if (msg_back.cmd == ONLINEUSER_OVER) {
-            break;
-        }
 
-    }
-    // printf("usercount =%d\n",userdata.userCount);
-    for (int i = 0; i < userdata.userCount; i++) {
-        printf("User: %s\n", userdata.names[i]);
-    }
+    // while (1) {
+    //     // 读取传输的数据
+    //     ssize_t bytesRead = read(sockfd, &msg_back, sizeof(msg_back));
+    //     strcpy(userdata.names[userdata.userCount], msg_back.name);
+    //     userdata.userCount++;
+    //     if (msg_back.cmd == ONLINEUSER_OVER) {
+    //         break;
+    //     }
+
+    // }
+    // // printf("usercount =%d\n",userdata.userCount);
+    // for (int i = 0; i < userdata.userCount; i++) {
+    //     printf("User: %s\n", userdata.names[i]);
+    // }
     return 0;
 }
 

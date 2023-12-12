@@ -28,7 +28,8 @@ void *rec_func(void *arg){
         if(login_flag != 1){
             continue;
         }
-        nbytes = read(fd,&msg,sizeof(msg));;
+        nbytes = read(fd,&msg,sizeof(msg));
+
         if(nbytes == -1){
             close(fd);
             break;
@@ -37,9 +38,20 @@ void *rec_func(void *arg){
             printf("server disconnect!\n");
             break;
         }
-        printf("Message#%s\n",msg.data);
-    }
 
+
+        if((msg.cmd == ONLINEUSER)&& (msg.status == ONLINEUSER_OK)){
+            printf("Online User: %s\n", msg.name);
+        }
+        if((msg.cmd == ONLINEUSER)&& (msg.status == ONLINEUSER_OVER)){
+            printf("Online User: %s\n", msg.name);
+        }
+
+        if((msg.cmd == BROADCAST) || (msg.cmd == PRIVATE)){
+            printf("Message#%s\n",msg.data);
+        }
+
+    }
 }
 
 int main(int argc,char *argv[]){

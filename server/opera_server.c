@@ -69,7 +69,7 @@ void opera_show_online(int sockfd){
     userdata.userCount = 0;
 
     msg_back.cmd = ONLINEUSER; 
-
+    msg_back.status = ONLINEUSER_OK;
     if(db_show(&db,&userdata) != 0){
         return;
     }
@@ -79,7 +79,7 @@ void opera_show_online(int sockfd){
         write(sockfd,&msg_back,sizeof(msg_back));
     }
     
-    msg_back.cmd = ONLINEUSER_OVER;
+    msg_back.status = ONLINEUSER_OVER;
     strcpy(msg_back.name, userdata.names[userdata.userCount - 1]);
     write(sockfd,&msg_back,sizeof(msg_back));
     // for (int j = 0; j < userdata.userCousnt; j++) {
@@ -141,10 +141,14 @@ int opera_broadcast(int fd,struct protocol *msg){
 
     // strcpy(msg_back.data, msg->data);
     snprintf(msg_back.data, sizeof(msg_back.data), "%s say: %s", name,msg->data);
-    for(int i = 0;i < userdata.userCount - 1;i++){
+    for(int i = 0;i < userdata.userCount;i++){
         strcpy(msg_back.name, userdata.names[i]);
         sockfd = db_finduserfd(&db,msg_back.name);
-        write(sockfd,&msg_back,sizeof(msg_back));
+        if(sockfd != fd){
+            LOGI("%s send to %s\n",name,msg_back.name);
+            LOGI("%d send to %d\n",fd,sockfd);
+            write(sockfd,&msg_back,sizeof(msg_back));
+        }
     }
     return 0;
 }

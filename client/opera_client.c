@@ -47,7 +47,7 @@ int opera_login(int sockfd){
     scanf("%s",msg.name);
     printf("input your passwd\n"); 
     scanf("%s",msg.data);
-
+    getchar();
     if((write(sockfd,&msg,sizeof(msg))) == -1){
         fprintf(stderr,"send data fail!\n");
         close(sockfd);
@@ -114,21 +114,15 @@ int opera_private(int sockfd){
     printf("input send to name:\n"); 
     scanf("%s",msg.name);
     printf("input message:\n"); 
-    scanf("%s",msg.data);
+    getchar();
+    fgets(msg.data, sizeof(msg.data), stdin);
+    msg.data[strcspn(msg.data, "\n")] = '\0';
 
     if((write(sockfd,&msg,sizeof(msg))) == -1){
         fprintf(stderr,"send data fail!\n");
         close(sockfd);
         return;
     }
-
-    
-    // if((read(sockfd,&msg_back,sizeof(msg_back))) == -1){
-    //     fprintf(stderr,"read data fail!\n");
-    //     close(sockfd);
-    //     return;
-    // }
-
 
 }
 
@@ -138,7 +132,9 @@ int opera_broadcast(int sockfd){
 
     msg.cmd = BROADCAST; 
     printf("input message:\n"); 
-    scanf("%s",msg.data);
+    fgets(msg.data, sizeof(msg.data), stdin);
+    msg.data[strcspn(msg.data, "\n")] = '\0';
+
 
     if((write(sockfd,&msg,sizeof(msg))) == -1){
         fprintf(stderr,"send data fail!\n");

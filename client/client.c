@@ -12,14 +12,11 @@
 #include "opera_client.h"
 
 
-#define BUFFERSIZE 1024
-
-
+// logged flag   -1   not logged in
 login_flag = -1;
 
 
 void *rec_func(void *arg){
-    char buffer[BUFFERSIZE];
     int nbytes;
     struct protocol msg;
     int fd = *(int *)arg;

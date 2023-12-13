@@ -104,11 +104,9 @@ int opera_private(int fd,struct protocol *msg){
     if(db_findusername(&db,fd,name) != 0){
         return -1;
     }
-    printf("name sfafdafda sfdfddd= %s\n",name);
     if(!(sockfd>0)){
         return -1;
     }
-    printf("name sfafdafda ddd= %s\n",name);
     msg_back.cmd = PRIVATE;
 
     snprintf(msg_back.data, sizeof(msg_back.data), "%s %s %s:%s", name,"send to",msg->name,msg->data);

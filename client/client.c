@@ -60,6 +60,7 @@ int main(int argc,char *argv[]){
     int *pthreadarg = NULL;
     pthread_t thread;
     int choose;
+    char ch;
     int max_sel,min_sel;
 
     if(argc != 2){
@@ -111,11 +112,29 @@ int main(int argc,char *argv[]){
             printf("5. online list\n");
             printf("6. login out\n");
         }
+        choose = 0;
+        printf("input options:\n");
 
-        printf("input send mesggage:\n");
-        if(scanf("%d",&choose) != 1){
+        ch = getchar();
+        if (ch >= '0' && ch <= '9') {
             while (getchar() != '\n');
+            choose = ch - '0';
+        } else if (ch == '\n') {
+            printf("this is enter\n");
+            system("clear");
+            continue;
+        } else {
+            printf("input invaild!\n");
+            while (getchar() != '\n');
+            continue;
         }
+        // if(scanf("%d",&choose) != 1){
+        //     while (getchar() != '\n');
+        // }
+        // if(choose == '\n'){
+        //     printf("input enter\n");
+        // }
+
         if(login_flag == 1){
             max_sel = 6;
             min_sel = 3;
